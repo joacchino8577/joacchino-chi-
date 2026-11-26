@@ -1,0 +1,17 @@
+{
+  "name": "joacchino-chi",
+  "version": "2.0.0",
+  "description": "JOACCHINO CHI???? - Indovina Chi multiplayer con Single Player, 1v1 e Torneo stile Champions",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "license": "MIT"
+}

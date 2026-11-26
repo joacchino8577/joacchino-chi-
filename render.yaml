@@ -1,0 +1,9 @@
+# Configurazione automatica per Render (Blueprint)
+services:
+  - type: web
+    name: joacchino-chi
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health

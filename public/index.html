@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JOACCHINO CHI????</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Titolo sempre visibile -->
+  <header class="topbar">
+    <h1 class="logo" id="logo">JOACCHINO <span>CHI????</span></h1>
+    <button class="sound-toggle" id="btn-sound" title="Suoni on/off">🔊</button>
+  </header>
+
+  <main>
+    <!-- ================= LOBBY ================= -->
+    <section id="screen-lobby" class="screen active">
+      <div class="panel lobby-panel">
+        <label class="nick-label" for="nick">Il tuo Nickname</label>
+        <input id="nick" class="input big" maxlength="16" placeholder="es. Joacchino420" autocomplete="off" />
+
+        <div class="modes">
+          <div class="mode-card">
+            <div class="mode-icon">🤖</div>
+            <h2>Single Player</h2>
+            <p>Sfida immediata contro la CPU.</p>
+            <button class="btn btn-primary" id="btn-single">GIOCA vs CPU</button>
+          </div>
+
+          <div class="mode-card">
+            <div class="mode-icon">⚔️</div>
+            <h2>Multiplayer 1v1</h2>
+            <p>Stanza privata con chiave d'ingresso.</p>
+            <button class="btn btn-primary" id="btn-room-create">CREA STANZA</button>
+            <div class="join-row">
+              <input id="room-code" class="input code" maxlength="6" placeholder="CHIAVE" autocomplete="off" />
+              <button class="btn" id="btn-room-join">ENTRA</button>
+            </div>
+          </div>
+
+          <div class="mode-card champions">
+            <div class="mode-icon">🏆</div>
+            <h2>Torneo Champions</h2>
+            <p>Da 3 a 20 giocatori, tabellone a eliminazione diretta.</p>
+            <button class="btn btn-gold" id="btn-t-create">CREA TORNEO</button>
+            <div class="join-row">
+              <input id="t-code" class="input code" maxlength="6" placeholder="CHIAVE" autocomplete="off" />
+              <button class="btn" id="btn-t-join">ENTRA</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lobby-foot">
+          <button class="btn btn-small btn-gold" id="btn-lb">🏅 Classifica</button>
+          <button class="btn btn-small" id="btn-mic-test">🎤 Prova microfono</button>
+          <span id="mic-status" class="muted">Per vincere devi gridare <b>"Joacchino chi?"</b> al microfono!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ATTESA STANZA 1v1 ================= -->
+    <section id="screen-wait" class="screen">
+      <div class="panel center">
+        <h2>Stanza creata!</h2>
+        <p>Condividi questa chiave con il tuo amico:</p>
+        <button class="code-display" id="wait-code" title="Clicca per copiare">------</button>
+        <p class="muted">Clicca sulla chiave per copiarla</p>
+        <div class="loader">🌿</div>
+        <p>In attesa dell'avversario…</p>
+        <button class="btn" data-leave>Annulla</button>
+      </div>
+    </section>
+
+    <!-- ================= LOBBY TORNEO ================= -->
+    <section id="screen-tlobby" class="screen">
+      <div class="panel center champions-panel">
+        <h2>🏆 Sala d'attesa Torneo</h2>
+        <p>Chiave d'ingresso:</p>
+        <button class="code-display gold" id="t-code-display" title="Clicca per copiare">------</button>
+        <p class="muted">Clicca sulla chiave per copiarla · Minimo 3, massimo 20 giocatori</p>
+        <h3>Partecipanti <span id="t-count">0/20</span></h3>
+        <ul id="t-players" class="player-list"></ul>
+        <div class="row-buttons">
+          <button class="btn btn-gold hidden" id="btn-t-start">AVVIA TORNEO</button>
+          <span id="t-wait-host" class="muted">In attesa che l'organizzatore avvii il torneo…</span>
+        </div>
+        <button class="btn btn-small" data-leave>Esci</button>
+      </div>
+    </section>
+
+    <!-- ================= TABELLONE TORNEO ================= -->
+    <section id="screen-bracket" class="screen">
+      <div class="bracket-wrap">
+        <div class="bracket-head">
+          <h2>⭐ TABELLONE TORNEO <span id="b-code"></span> ⭐</h2>
+          <div id="b-status" class="muted"></div>
+          <div class="row-buttons">
+            <button class="btn btn-primary hidden" id="btn-to-match">▶ Vai alla tua partita</button>
+            <button class="btn btn-small" data-leave>Esci dal torneo</button>
+          </div>
+        </div>
+        <div class="bracket-scroll">
+          <div id="bracket" class="bracket"></div>
+          <svg id="bracket-lines" class="bracket-lines"></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PARTITA ================= -->
+    <section id="screen-game" class="screen">
+      <div class="game-head">
+        <div id="g-label" class="g-label"></div>
+        <div class="vs"><b id="g-you">Tu</b> <span>VS</span> <b class="opp-name"><span id="g-opp">Avversario</span><i id="opp-bubble" class="chat-bubble hidden"></i></b></div>
+        <div id="g-turn" class="turn-pill">…</div>
+        <button class="btn btn-small hidden" id="btn-see-bracket">🏆 Tabellone</button>
+      </div>
+      <!-- Cronometro del turno (40 secondi) -->
+      <div class="timer-wrap">
+        <div class="timer-bar"><div id="timer-fill" class="timer-fill"></div></div>
+        <div id="timer-text" class="timer-text">40</div>
+      </div>
+
+      <div class="game-body">
+        <div class="board-wrap">
+          <div id="guess-hint" class="guess-hint hidden">
+            🎯 Clicca sul personaggio che pensi sia quello dell'avversario
+            <button class="btn btn-small" id="btn-guess-cancel">Annulla</button>
+          </div>
+          <div id="board" class="board"></div>
+        </div>
+
+        <aside class="side">
+          <div class="secret-box">
+            <div class="side-title">La tua carta segreta</div>
+            <div id="secret-card" class="secret-card"></div>
+          </div>
+
+          <div id="last-qa" class="last-qa hidden"></div>
+
+          <div class="side-title">Domande <small>(una per turno)</small></div>
+          <div id="questions" class="questions"></div>
+
+          <div class="actions">
+            <button class="btn btn-gold" id="btn-guess">🎯 INDOVINA PERSONAGGIO</button>
+            <button class="btn" id="btn-end-turn">⏭️ Passa il turno</button>
+          </div>
+
+          <div class="side-title">Chat veloce</div>
+          <div id="quick-chat" class="quick-chat"></div>
+
+          <div class="side-title">Cronaca</div>
+          <ul id="log" class="log"></ul>
+          <button class="btn btn-small" data-leave>Abbandona partita</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====== Fumetto domanda in arrivo ====== -->
+  <div id="q-overlay" class="overlay hidden">
+    <div class="bubble">
+      <div class="bubble-from" id="q-from">L'avversario chiede:</div>
+      <div class="bubble-text" id="q-text">…</div>
+      <div class="bubble-secret">La tua carta: <b id="q-secret-name"></b></div>
+      <div class="yn">
+        <button class="btn btn-yes" id="btn-yes">SÌ</button>
+        <button class="btn btn-no" id="btn-no">NO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Fase vocale ====== -->
+  <div id="voice-overlay" class="overlay hidden">
+    <div class="voice-box">
+      <div id="voice-title" class="voice-title">HAI INDOVINATO!</div>
+      <div class="voice-say">Ora grida al microfono:</div>
+      <div class="voice-phrase">"JOACCHINO CHI?"</div>
+      <div class="countdown" id="countdown">5</div>
+      <div id="voice-heard" class="voice-heard">🎤 In ascolto…</div>
+      <button class="btn btn-small btn-ghost" id="btn-sim-mic">Simula Microfono (Test)</button>
+    </div>
+  </div>
+
+  <!-- ====== Fine partita ====== -->
+  <div id="over-overlay" class="overlay hidden">
+    <div class="over-box">
+      <div id="over-title" class="over-title"></div>
+      <div id="over-sub" class="over-sub"></div>
+      <div class="over-card-wrap">
+        <div>Il personaggio dell'avversario era:</div>
+        <div id="over-card" class="secret-card small"></div>
+      </div>
+      <div class="row-buttons">
+        <button class="btn btn-small" data-open-lb>🏅 Classifica</button>
+        <button class="btn btn-primary" id="btn-rematch">🔁 Rivincita</button>
+        <button class="btn btn-gold hidden" id="btn-over-bracket">🏆 Torna al tabellone</button>
+        <button class="btn" data-leave>🏠 Menu principale</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Premiazione torneo ====== -->
+  <div id="podium-overlay" class="overlay hidden">
+    <div class="podium-box">
+      <div class="trophy">🏆</div>
+      <h2>CAMPIONE DEL TORNEO</h2>
+      <div id="champion-name" class="champion-name"></div>
+      <div class="podium">
+        <div class="step second"><div class="pname" id="p-second"></div><div class="block">2</div></div>
+        <div class="step first"><div class="pname" id="p-first"></div><div class="block">1</div></div>
+        <div class="step third"><div class="pname" id="p-third"></div><div class="block">3</div></div>
+      </div>
+      <div class="row-buttons">
+        <button class="btn" id="btn-podium-close">Vedi tabellone</button>
+        <button class="btn btn-primary" data-leave>🏠 Menu principale</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Classifica ====== -->
+  <div id="lb-overlay" class="overlay hidden">
+    <div class="over-box lb-box">
+      <div class="over-title win">🏅 CLASSIFICA</div>
+      <p class="muted">Torneo vinto = 10 punti · Vittoria 1v1/torneo = 3 · Vittoria vs CPU = 1</p>
+      <table class="lb-table">
+        <thead><tr><th>#</th><th>Giocatore</th><th>🏆</th><th>⚔️ V</th><th>💀 S</th><th>🤖 V</th><th>Punti</th></tr></thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+      <button class="btn btn-primary" id="btn-lb-close">Chiudi</button>
+    </div>
+  </div>
+
+  <canvas id="confetti" class="confetti"></canvas>
+  <div id="toasts" class="toasts"></div>
+  <canvas id="cutter" hidden></canvas>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="characters.js"></script>
+  <script src="sounds.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
